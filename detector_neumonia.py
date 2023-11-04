@@ -13,14 +13,18 @@ import tkcap
 import img2pdf
 import numpy as np
 import time
+import tensorflow as tf
+# cambio line 16  NameError: name 'tf' is not defined
 tf.compat.v1.disable_eager_execution()
 tf.compat.v1.experimental.output_all_intermediates(True)
 import cv2
+import pydicom
+import os
 
 
 def grad_cam(array):
     img = preprocess(array)
-    model = model_fun()
+    model = tf.keras.models.load_model('WilhemNet_86.h5')
     preds = model.predict(img)
     argmax = np.argmax(preds[0])
     output = model.output[:, argmax]
@@ -51,8 +55,8 @@ def predict(array):
     #   1. call function to pre-process image: it returns image in batch format
     batch_array_img = preprocess(array)
     #   2. call function to load model and predict: it returns predicted class and probability
-    model = model_fun()
-    # model_cnn = tf.keras.models.load_model('conv_MLP_84.h5')
+    #model = run_model()
+    model = tf.keras.models.load_model('WilhemNet_86.h5')
     prediction = np.argmax(model.predict(batch_array_img))
     proba = np.max(model.predict(batch_array_img)) * 100
     label = ""
@@ -68,7 +72,7 @@ def predict(array):
 
 
 def read_dicom_file(path):
-    img = dicom.read_file(path)
+    img = pydicom.dcmread(path)
     img_array = img.pixel_array
     img2show = Image.fromarray(img_array)
     img2 = img_array.astype(float)
@@ -194,8 +198,14 @@ class App:
             ),
         )
         if filepath:
-            self.array, img2show = read_dicom_file(filepath)
-            self.img1 = img2show.resize((250, 250), Image.ANTIALIAS)
+            if filepath:
+                _, file_extension = os.path.splitext(filepath.lower())
+            if file_extension == ".dcm":
+                self.array, img2show = read_dicom_file(filepath)
+            else:
+                self.array, img2show = read_jpg_file(filepath)
+            # cambio no dejaba funcionarr con Image.ANTIALIAS
+            self.img1 = img2show.resize((250, 250), Image.LANCZOS)
             self.img1 = ImageTk.PhotoImage(self.img1)
             self.text_img1.image_create(END, image=self.img1)
             self.button1["state"] = "enabled"
@@ -203,7 +213,8 @@ class App:
     def run_model(self):
         self.label, self.proba, self.heatmap = predict(self.array)
         self.img2 = Image.fromarray(self.heatmap)
-        self.img2 = self.img2.resize((250, 250), Image.ANTIALIAS)
+        # cambio  Image.ANTIALIAS POR Image.LANCZOS
+        self.img2 = self.img2.resize((250, 250), Image.LANCZOS)
         self.img2 = ImageTk.PhotoImage(self.img2)
         print("OK")
         self.text_img2.image_create(END, image=self.img2)
