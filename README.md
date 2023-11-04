@@ -104,3 +104,4 @@ Grad-CAM realiza el cálculo del gradiente de la salida correspondiente a la cla
 Isabella Torres Revelo - https://github.com/isa-tr
 Nicolas Diaz Salazar - https://github.com/nicolasdiazsalazar
 # proyecto_neumonia
+# proyecto_neumonia
