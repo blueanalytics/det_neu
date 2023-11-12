@@ -1,7 +1,8 @@
 
 # neural_network.py
-import tensorflow as tf
+
 from keras import backend as K
+import tensorflow as tf
 import cv2
 import numpy as np
 from PIL import Image

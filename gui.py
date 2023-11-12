@@ -10,6 +10,7 @@ import time
 import csv
 from neural_network import NeuralNetwork
 from file_operations import read_dicom_file, read_jpg_file
+from PIL import ImageTk, ImageFilter, ImageTk
 import os
 
 class GUI:
@@ -102,7 +103,7 @@ class GUI:
             else:
                 self.array, img2show = read_jpg_file(filepath)
 
-            self.img1 = img2show.resize((250, 250), Image.LANCZOS)
+            self.img1 = img2show.resize((250, 250))
             self.img1 = ImageTk.PhotoImage(self.img1)
             self.text_img1.image_create(END, image=self.img1)
             self.button1["state"] = "enabled"
@@ -110,7 +111,7 @@ class GUI:
     def run_model(self):
         self.label, self.proba, self.heatmap = self.neural_network.predict(self.array)
         self.img2 = Image.fromarray(self.heatmap)
-        self.img2 = self.img2.resize((250, 250), Image.LANCZOS)
+        self.img2 = self.img2.resize((250, 250))
         self.img2 = ImageTk.PhotoImage(self.img2)
         print("OK")
         self.text_img2.image_create(END, image=self.img2)
